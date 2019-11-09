@@ -1,2 +1,2 @@
 # blink
-::book:: A Bible Study &amp; Research Tool
+:book: A Bible Study &amp; Research Tool
