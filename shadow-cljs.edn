@@ -8,6 +8,6 @@
  []
 
  :builds
- {:main {:target :node-script
+ {:app {:target :node-script
          :output-to "dist/index.js"
          :main blink.app.main/main}}}

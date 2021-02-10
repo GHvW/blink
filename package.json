@@ -2,6 +2,10 @@
   "name": "blink",
   "version": "0.0.1",
   "private": true,
+  "scripts": {
+    "build": "./node_modules/.bin/shadow-cljs compile app",
+    "release": "./node_modules/.bin/shadow-cljs release app"
+  },
   "devDependencies": {
     "shadow-cljs": "2.11.18"
   },
