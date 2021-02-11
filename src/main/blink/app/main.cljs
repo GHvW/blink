@@ -1,6 +1,7 @@
 (ns blink.app.main
   (:require
-   ["process" :as process]))
+   ["process" :as process]
+   ["yargs/yargs" :as yargs]))
 
 
 (def api-token (.. process -env -BIBLE_API_KEY))
