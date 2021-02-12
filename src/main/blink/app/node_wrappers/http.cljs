@@ -11,34 +11,43 @@
 
 
 (defn node-get
-  ([url] (get url #js {}))
+  ([url] (node-get url #js {}))
   ([url options]
   (let [out-chan (chan)]
-    (https/get url
-               options
+    (println (str "url is: " url))
+    (-> (.get https url
+              ;;  options
                (fn [res]
+                ;;  (println (str "res is " res))
                  (let [status-code (.-statusCode res)]
                    (if (not= status-code 200)
                      (do
+                      ;;  (println "status code not 200")
                        (put! out-chan [:error {:code status-code :message "error"}])
                        (.resume res)
                        (close! out-chan))
                      (do
+                      ;;  (println "status code 200")
                        (.on res "data" (fn [chunk] (put! out-chan [:data chunk])))
                        (.on res "end" (fn [] (close! out-chan))))))))
+        (.on "error" (fn [err]
+                      ;;  (println (str "error: " err))
+                       (put! out-chan [:error "cant perform request"])
+                       (close! out-chan))))
     out-chan)))
 
 
 (defn get-request
   ([url] (get-request url nil))
   ([url options]
-   (let [out-chan (chan 1)]
-     (reduce (fn [buff next]
-               (match [next]
-                 [[:error message]] message
-                 [[:data data]] (str buff data))) 
-             "" 
-             (node-get url options)))))
+   (println (str "got " url " with " options))
+   (->> (node-get url options)
+        (reduce (fn [buff next]
+                  (println next)
+                  (match [next]
+                    [[:error message]] (do (println message) message)
+                    [[:data data]] (str buff data)))
+                ""))))
 
 (comment
   (not= 1 2)
