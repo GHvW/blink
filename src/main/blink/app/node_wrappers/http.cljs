@@ -18,20 +18,16 @@
     (-> (.get https url
               ;;  options
                (fn [res]
-                ;;  (println (str "res is " res))
                  (let [status-code (.-statusCode res)]
                    (if (not= status-code 200)
                      (do
-                      ;;  (println "status code not 200")
                        (put! out-chan [:error {:code status-code :message "error"}])
                        (.resume res)
                        (close! out-chan))
                      (do
-                      ;;  (println "status code 200")
                        (.on res "data" (fn [chunk] (put! out-chan [:data chunk])))
                        (.on res "end" (fn [] (close! out-chan))))))))
         (.on "error" (fn [err]
-                      ;;  (println (str "error: " err))
                        (put! out-chan [:error "cant perform request"])
                        (close! out-chan))))
     out-chan)))
@@ -41,13 +37,16 @@
   ([url] (get-request url nil))
   ([url options]
    (println (str "got " url " with " options))
+  ;;  (node-get url options)))
    (->> (node-get url options)
         (reduce (fn [buff next]
-                  (println next)
+                  (println (str "TYPEOF: " (js/typeof next)))
+                  ;; (println (str "NEXT****: " next))
                   (match [next]
-                    [[:error message]] (do (println message) message)
-                    [[:data data]] (str buff data)))
-                ""))))
+                    [[:error message]] (conj buff message)
+                    [[:data data]] (conj buff data)))
+                []))))
+        ;; (apply str))))
 
 (comment
   (not= 1 2)
@@ -55,5 +54,9 @@
   (deserialize "{ \"person\": { \"name\": \"Garrett\" } }")
 
   (js->clj (deserialize "{ \"person\": { \"name\": \"Garrett\" } }"))
+
+  (apply str ["hello" " " "world"])
+
+  (apply str (conj [] "hello"))
 
   (+ 1 2))

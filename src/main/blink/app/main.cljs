@@ -14,7 +14,7 @@
   (js/console.log "hello world!!!!a")
   (go
     (let [it (<! (get-request "https://api.chucknorris.io/jokes/random"))]
-      (println it))))
+      (println (js/JSON.parse it)))))
 
 
 (comment
