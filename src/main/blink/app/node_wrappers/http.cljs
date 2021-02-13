@@ -14,39 +14,38 @@
   ([url] (node-get url #js {}))
   ([url options]
   (let [out-chan (chan)]
-    (println (str "url is: " url))
     (-> (.get https url
               ;;  options
-               (fn [res]
-                 (let [status-code (.-statusCode res)]
-                   (if (not= status-code 200)
-                     (do
-                       (put! out-chan [:error {:code status-code :message "error"}])
-                       (.resume res)
-                       (close! out-chan))
-                     (do
-                       (.on res "data" (fn [chunk] (put! out-chan [:data chunk])))
-                       (.on res "end" (fn [] (close! out-chan))))))))
+              (fn [res]
+                (let [status-code (.-statusCode res)]
+                  (if (not= status-code 200)
+                    (do
+                      (put! out-chan [:error {:code status-code :message "error"}])
+                      (close! out-chan) ;; close channel first in case .resume creates a data event
+                      (.resume res))
+                    (do
+                      (.setEncoding res "utf8")
+                      (.on res "data" (fn [chunk] (put! out-chan [:data chunk])))
+                      (.on res "end" (fn [] (close! out-chan))))))))
         (.on "error" (fn [err]
                        (put! out-chan [:error "cant perform request"])
                        (close! out-chan))))
-    out-chan)))
+    (reduce (fn [buff next]
+              (match [next]
+                [[:error message]] (conj buff message)
+                [[:data data]] (conj buff data)))
+            []
+            out-chan))))
 
 
 (defn get-request
   ([url] (get-request url nil))
   ([url options]
-   (println (str "got " url " with " options))
-  ;;  (node-get url options)))
-   (->> (node-get url options)
-        (reduce (fn [buff next]
-                  (println (str "TYPEOF: " (js/typeof next)))
-                  ;; (println (str "NEXT****: " next))
-                  (match [next]
-                    [[:error message]] (conj buff message)
-                    [[:data data]] (conj buff data)))
-                []))))
-        ;; (apply str))))
+   (let [out (chan 1)]
+     (go
+       (>! out (apply str (<! (node-get url options)))))
+     out)))
+
 
 (comment
   (not= 1 2)
