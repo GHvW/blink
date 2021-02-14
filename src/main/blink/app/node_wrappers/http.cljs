@@ -2,7 +2,7 @@
   (:require
    ["https" :as https]
    [cljs.core.match :refer-macros [match]]
-   [cljs.core.async :refer [go chan <! put! take! close! reduce]]))
+   [cljs.core.async :refer [go chan <! put! >! close! reduce]]))
 
 
 (defn deserialize
