@@ -18,6 +18,10 @@
       (println it)
       (println (type "hi")))))
 
+(defn get-versions
+  []
+  (get-request #js {:headers #js {"api-key" api-token}} ""))
+
 (defn main
   []
   (-> yargs
@@ -31,6 +35,12 @@
                                                 :describe "the name to greet"}))
                 (fn [argv]
                   (println (str "Greetings " (.-name argv) "!"))))
+      (.command "versions"
+                "get a list of bible versions available"
+                (fn [] #js {})
+                (fn [_]
+                  (go
+                    (println (<! (get-versions))))))
       (.help)
       (.epilog "Thank you Bible.API")
       (.-argv)))

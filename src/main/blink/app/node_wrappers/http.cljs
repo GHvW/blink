@@ -15,7 +15,7 @@
   ([url options]
   (let [out-chan (chan)]
     (-> (.get https url
-              ;;  options
+              options
               (fn [res]
                 (let [status-code (.-statusCode res)]
                   (if (not= status-code 200)
