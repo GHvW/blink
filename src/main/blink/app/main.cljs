@@ -7,7 +7,7 @@
 
 
 (def api-token (.. process -env -BIBLE_API_KEY))
-
+(def base-bible-api-url "https://api.scripture.api.bible")
 
 (defn get-test
   []
@@ -20,30 +20,39 @@
 
 (defn get-versions
   []
-  (get-request #js {:headers #js {"api-key" api-token}} ""))
+  (get-request (str base-bible-api-url "/v1/bibles")
+               #js {:headers #js {"api-key" api-token}}))
+
+  
+(def language-filter (filter (get coll "language")))
+
 
 (defn main
   []
-  (-> yargs
-      (.scriptName "blink")
-      (.usage "$0 <cmd> [args]")
-      (.command "greetings [name]"
-                "greetings!"
-                (fn [yrgs]
-                  (.positional yrgs "name" #js {:type "string"
-                                                :default "seeker"
-                                                :describe "the name to greet"}))
-                (fn [argv]
-                  (println (str "Greetings " (.-name argv) "!"))))
-      (.command "versions"
-                "get a list of bible versions available"
-                (fn [] #js {})
-                (fn [_]
-                  (go
-                    (println (<! (get-versions))))))
-      (.help)
-      (.epilog "Thank you Bible.API")
-      (.-argv)))
+  (let [args (-> yargs
+                 (.scriptName "blink")
+                 (.usage "$0 <cmd> [args]")
+                 (.command "greetings [name]"
+                           "greetings!"
+                           (fn [yrgs]
+                             (.positional yrgs "name" #js {:type "string"
+                                                           :default "seeker"
+                                                           :describe "the name to greet"}))
+                           (fn [argv]
+                             (println (str "Greetings " (.-name argv) "!"))))
+                 (.command "versions [language]"
+                           "get a list of bible versions available"
+                           (fn [yrgs] 
+                             (.positional yrgs "language" #js {:type "string"
+                                                               :default nil
+                                                               :describe "filter results by language translation"}))
+                           (fn [argv]
+                             (go
+                               (println (<! (get-versions))))))
+                 (.help)
+                 (.epilog "Thank you Bible.API")
+                 (.-argv))]
+    (println args)))
 
 
 (comment

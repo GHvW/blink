@@ -14,7 +14,8 @@
   ([url] (node-get url #js {}))
   ([url options]
   (let [out-chan (chan)]
-    (-> (.get https url
+    (-> (.get https 
+              url
               options
               (fn [res]
                 (let [status-code (.-statusCode res)]
@@ -41,6 +42,7 @@
 (defn get-request
   ([url] (get-request url nil))
   ([url options]
+  (println options)
    (let [out (chan 1)]
      (go
        (>! out (apply str (<! (node-get url options)))))
