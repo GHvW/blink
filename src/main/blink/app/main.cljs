@@ -24,7 +24,13 @@
                #js {:headers #js {"api-key" api-token}}))
 
   
-(def language-filter (filter (get coll "language")))
+(defn make-language-filter 
+  [language]
+  (filter (fn [obj] 
+            (= language (aget obj "language" "name")))))
+
+
+(def xversion (map (fn [obj] (aget obj "name"))))
 
 
 (defn main
@@ -42,13 +48,22 @@
                              (println (str "Greetings " (.-name argv) "!"))))
                  (.command "versions [language]"
                            "get a list of bible versions available"
-                           (fn [yrgs] 
+                           (fn [yrgs]
                              (.positional yrgs "language" #js {:type "string"
                                                                :default nil
                                                                :describe "filter results by language translation"}))
                            (fn [argv]
-                             (go
-                               (println (<! (get-versions))))))
+                             (let [language (.-language argv)]
+                               (go
+                                 (println
+                                  (if (nil? language)
+                                    (into [] 
+                                          xversion 
+                                          (aget (js/JSON.parse (<! (get-versions))) "data"))
+                                    (into [] 
+                                          (comp (make-language-filter language) xversion) ;; transducer
+                                          (aget (js/JSON.parse (<! (get-versions))) "data")))))))) ;; data
+
                  (.help)
                  (.epilog "Thank you Bible.API")
                  (.-argv))]

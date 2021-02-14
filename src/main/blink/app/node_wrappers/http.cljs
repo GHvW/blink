@@ -42,7 +42,7 @@
 (defn get-request
   ([url] (get-request url nil))
   ([url options]
-  (println options)
+  ;; (println options)
    (let [out (chan 1)]
      (go
        (>! out (apply str (<! (node-get url options)))))
