@@ -30,7 +30,7 @@
                                                 :default "seeker"
                                                 :describe "the name to greet"}))
                 (fn [argv]
-                  (println (str "greetings " (.-name argv) "!"))))
+                  (println (str "Greetings " (.-name argv) "!"))))
       (.help)
       (.epilog "Thank you Bible.API")
       (.-argv)))
@@ -38,5 +38,5 @@
 
 (comment
   api-token
-  
+
   (+ 2 3))
