@@ -18,6 +18,7 @@
       (println it)
       (println (type "hi")))))
 
+
 (defn get-versions
   []
   (get-request (str base-bible-api-url "/v1/bibles")
@@ -65,7 +66,7 @@
                                           (aget (js/JSON.parse (<! (get-versions))) "data")))))))) ;; data
 
                  (.help)
-                 (.epilog "Thank you Bible.API")
+                 (.epilog "Thank you API.Bible")
                  (.-argv))]
     (println args)))
 
